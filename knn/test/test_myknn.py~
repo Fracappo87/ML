@@ -9,11 +9,35 @@ License: BSD 3 clause
 
 import unittest
 import numpy as np
+#from .context import myknn 
 from ..myknn import MyKnn
 
 
 class MyKnnTest(unittest.TestCase):
     
+    def test_myknn_attributes(self):
+        
+        print("\n testing attributes initialization")
+        
+        # TEST 1: checking parameters initialization using correct parameters
+        my_knn = MyKnn()
+        self.assertEqual('Euclidean',my_knn._MyKnn__dist,"a) Checking the correct value for distance choice.")
+        self.assertEqual(5,my_knn._MyKnn__k,"b) Checking the correct number of neighbors.")
+        self.assertEqual(100,my_knn._MyKnn__leafsize,"c) Checking the correct leafsize value.")
+        self.assertEqual(np.zeros(1),my_knn._MyKnn__grid_size,"d) Checking the correct grid value.")
+        self.assertFalse(my_knn._MyKnn__paral,"e) Checking the correct parallelization value.")
+        
+        # TEST 2: checking correct exception raising when wrong input parameters are given
+        self.assertRaises(ValueError,MyKnn,distance=4)          
+        self.assertRaises(ValueError,MyKnn,distance='gababubu')
+        self.assertRaises(ValueError,MyKnn,n_neighbors=.1)
+        self.assertRaises(ValueError,MyKnn,n_neighbors=-11)
+        self.assertRaises(ValueError,MyKnn,leafsize=.1)
+        self.assertRaises(ValueError,MyKnn,leafsize=-11)    
+        self.assertRaises(ValueError,MyKnn,grid_size='a')
+        self.assertRaises(ValueError,MyKnn,parallelize='a')
+        
+        
     def test_myknn_lexico(self):
         
         print("\n testing the lexico method")

@@ -8,10 +8,9 @@ License: BSD 3 clause
 
 """
 
-
-
 import numpy as np
-
+from metrics.mynorms import Euclidean,L1
+from checks.mycheck import sanitycheck
 
 class MyKnn(object):
 
@@ -48,50 +47,17 @@ class MyKnn(object):
         self.__k=n_neighbors
         self.__paral=parallelize
         self.__leafsize = leafsize
-        self.__grid_size = grid_size        
+        self.__grid_size = grid_size 
+        self.__paral = parallelize
         
+        super().__init__()
 ##############################################################################
 
     """
         Private methods.
         Just for internal use.
-    """
-
-    def __sanitycheck(self,X,types):
-        # sanity check: just to be sure the user is giving the right parameters
-        if not isinstance(X, types):
-            raise ValueError("Object has to be a ",types)
-
-
-
-    def __Euclidean(self, X):
-        
-        """
-            Compute Euclidean distance between two different points in feature space
-            Parameters
-            ----------
-            X : numpy-like, shape = [n_features]
-        """
-
-        self.__sanitycheck(X,np.ndarray)
-        return np.sqrt(np.power(X, 2).sum(axis=1))
-
-
-
-    def __L1(self, X):
-
-        """
-            Compute L1 distance between two different points in feature space
-            Parameters
-            ----------
-            X : numpy-like, shape = [n_features]
-        """
-
-        self.__sanitycheck(X,np.ndarray)
-        return np.sqrt(np.power(X, 2)).sum(axis=1)
-        
-        
-        
+    """        
+            
     def _lexico(self,X,extensions):
         
         """
@@ -119,7 +85,6 @@ class MyKnn(object):
         return X_lex.sum(axis=len(X.shape)-1)
              
         
-   
     def _shell_neighbor(self,shell_grade,point):
         
         """        
@@ -194,7 +159,6 @@ class MyKnn(object):
         return res,dist
         
         
-
     def _my_kdtree(self, data,leafsize):
         
         """
@@ -220,7 +184,7 @@ class MyKnn(object):
         """
 
 
-        self.__sanitycheck(data,np.ndarray)
+        sanitycheck(data,np.ndarray)
     
         ndim = data.shape[1]
         ndata = data.shape[0]
@@ -294,7 +258,6 @@ class MyKnn(object):
         return tree
 
 
-
     def _intersect(self,hrect,p):
         
         """
@@ -319,7 +282,6 @@ class MyKnn(object):
         maxval = hrect[1,:]
         minval = hrect[0,:]
         return (np.prod((p>=minval))*np.prod((p<=maxval)))
-    
     
     
     def _search_kdtree(self, tree, datapoint, K):   
@@ -553,7 +515,7 @@ class MyKnn(object):
         diff=(i-X_train for i in X_test)      
         i=0
         for j in diff:
-            dist=self.__Euclidean(j)
+            dist=Euclidean(j)
             mask=np.argsort(dist)
             self.neighbors_idx[i]=mask[:self.__k]
             self.neighbors_dist[i]=dist[mask][:self.__k]            
@@ -563,9 +525,9 @@ class MyKnn(object):
             
     def _fit_grid(self,X_train,X_test,extensions):
         
-        self.__sanitycheck(X_train,np.ndarray)
-        self.__sanitycheck(X_test,np.ndarray)
-        self.__sanitycheck(extensions,np.ndarray)
+        sanitycheck(X_train,np.ndarray)
+        sanitycheck(X_test,np.ndarray)
+        sanitycheck(extensions,np.ndarray)
     
         if ((len(X_train[0]) != 2) and (len(X_train[-1]) != 2) and (len(X_test[1]) != 2) and (len(X_test[-2]) != 2)):
             raise ValueError("Grid methods actually works only for 2-d isotropic lattices!")
@@ -601,7 +563,7 @@ class MyKnn(object):
                         
                 shell+=1
             if shell==4:
-                print("Grid method becomes not exact: exceeding the 3rd shell results in approximate definition of neighbors!")
+                print("WARNING: grid method becomes not exact: exceeding the 3rd shell results in approximate definition of neighbors!")
             self.neighbors_idx[m]=nk_temp
             self.neighbors_dist[m]=nk_dist_temp
             m+=1
@@ -642,8 +604,8 @@ class MyKnn(object):
             
     def _fit(self, X_train,X_test):
          
-        self.__sanitycheck(X_train,np.ndarray)
-        self.__sanitycheck(X_test,np.ndarray)
+        sanitycheck(X_train,np.ndarray)
+        sanitycheck(X_test,np.ndarray)
        
         #TO_ADD: session fro pd.Series and pd.DataFrame conversion
         

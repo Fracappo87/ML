@@ -8,12 +8,12 @@ License: BSD 3 clause
 
 """
 
-
 import numpy as np
-from myknn import MyKnn
+from knn.myknn import MyKnn
+from learners.mylearners import MyRegressor
+from checks.mycheck import sanitycheck
 
-
-class MyKnnRegressor(MyKnn):
+class MyKnnRegressor(MyKnn,MyRegressor):
 
     """
     Our KNN regressor. It allows regression analysis the k-nearest-neighbors algorithms
@@ -36,21 +36,8 @@ class MyKnnRegressor(MyKnn):
             raise ValueError("criterion method can only be \"flat\" or \"weighted\"!.")
 
         self.__crit=criterion
-        self.learner_type='regressor'
         self.learning_type='instance_based'
         
-##############################################################################
-   
-    """
-        Private methods.
-        Just for internal use.
-    """
-
-    def __sanitycheck(self,X,types):
-        # sanity check: just to be sure the user is giving the right parameters
-        if not isinstance(X, types):
-            raise ValueError("Object has to be a ",types)
-
 ##############################################################################
 
     """
@@ -81,7 +68,7 @@ class MyKnnRegressor(MyKnn):
              
     def _predict(self, Y_train):
         
-        self.__sanitycheck(Y_train,np.ndarray)
+        sanitycheck(Y_train,np.ndarray)
         
         if( not len(self.neighbors_idx)) or ( not len(self.neighbors_dist)):
             raise ValueError("You need to call the \"fit\" method before!\n")

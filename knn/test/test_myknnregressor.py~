@@ -9,7 +9,8 @@ License: BSD 3 clause
 
 import unittest
 import numpy as np
-from ..myknnregressor import MyKnnRegressor
+from .context import myknnregressor
+from myknnregressor import MyKnnRegressor
 
 
 
@@ -120,7 +121,23 @@ def create_mock_grid_2(X_len,Y_len,n_output_features,y_val):
         
         
 class MyKnnTest(unittest.TestCase):
-  
+    
+    def test_myknnregressor_attributes(self):
+        """
+            Testing the correcteness of the initialized attributes
+        """
+        
+        # TEST 1: checking parameters initialization using correct parameters
+        print("\n testing attributes initialization")        
+        my_knn = MyKnnRegressor(distance="Euclidean",criterion="flat",n_neighbors=1,parallelize=False)
+        self.assertEqual(my_knn.learner_type,"regressor","a) Checking knn attribute 'learner_type'.")
+        self.assertEqual(my_knn.learning_type,"instance_based","b) Checking knn attribute 'learning_type'.")
+        
+        # TEST 2: checking correct exception raising when wrong input parameters are given
+        self.assertRaises(ValueError,MyKnnRegressor,criterion=-5)          
+        self.assertRaises(ValueError,MyKnnRegressor,criterion="agababu")
+
+        
     def test_myknnregressor_predict_with_fit_serial(self):
         
         """

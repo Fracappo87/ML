@@ -1,0 +1,29 @@
+"""
+
+Author: Francesco Capponi <capponi.francesco87@gmail.com>
+       
+License: BSD 3 clause
+
+"""
+
+import unittest
+import numpy as np
+from ..mycheck import sanitycheck
+
+                
+class MyCheckTest(unittest.TestCase):
+    
+    def test_sanitycheck(self):
+        """
+        Testing the correcteness of the sanitycheck function
+        """
+        print("\n testing sanitycheck function")
+        X=np.array([1,2,3])
+        A="A"
+        self.assertRaises(ValueError,sanitycheck,X=X,types=str)
+        self.assertRaises(ValueError,sanitycheck,X=X,types=int)
+        self.assertRaises(ValueError,sanitycheck,X=A,types=np.ndarray)
+        
+if __name__ == '__main__':
+    unittest.main()
+            

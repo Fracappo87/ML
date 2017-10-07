@@ -9,8 +9,7 @@ License: BSD 3 clause
 """
 
 import numpy as np
-
-
+from checks.mycheck import sanitycheck
 
 class MyCrossValidation(object):
 
@@ -40,22 +39,9 @@ class MyCrossValidation(object):
             raise ValueError("parallelize has to be a bool variable, True or False!.")
         
         self.nfolds=kfolds
-        self.__shuf=reshuffle
+        self.shuf=reshuffle
         self.first_folding=True
         
-##############################################################################
-
-    """    
-        Private methods.
-        
-        Just for internal use
-    """
-
-    def __sanitycheck(self,X,types):
-        # sanity check: just to be sure the user is giving the right parameters
-        if not isinstance(X, types):
-            raise ValueError("Object has to be a ",types)
-
 ##############################################################################
 
     """    
@@ -100,39 +86,25 @@ class MyCrossValidation(object):
 ##############################################################################
       
     def _R_squared(self,y_pred,y_test):
+        if(y_pred.shape != y_test.shape):
+            raise ValueError("prediction and validation data arrays must have the same shape")
         rat1=np.power(y_test-y_pred,2).sum()
         avg=np.mean(y_test,axis=0)
         rat2=np.power(y_test-avg,2).sum()
         return 1-rat1/rat2
         
         
-    def _cross_val_regress(self,X,Y,learner):
+    def _cross_val_regress(self,X,Y,learner,batch_length,idx):
         """
-            Apply k-fold cross validation for the given learner
+            Apply k-fold cross validation for the given regression learner
         """
-        ndata=X.shape[0]
-        
-        if self.first_folding:
-            self.index=np.arange(ndata,dtype=int)
-            if self.__shuf: np.random.shuffle(self.index)
-            self.first_folding=False
-            
-        batch_length=ndata//self.nfolds
+
         self.R_squared_collection = np.zeros(self.nfolds)
-        
-        learning=learner.learning_type
-        if learning == 'instance_based':
-            idx=0
-        elif learning == 'training_based':             
-            idx=1
-        else:
-            raise ValueError("Only two possible learning types are admitted: instance_based and training_based")            
-            
-        m=0
+           
         for i in range(self.nfolds):
             test_index=self.index[i*batch_length:(i+1)*batch_length]
             train_index=np.concatenate((self.index[0:i*batch_length],self.index[(i+1)*batch_length:]),axis=0)    
-        
+            
             X_test_fold=X[test_index]
             Y_test_fold=Y[test_index]    
  
@@ -143,20 +115,38 @@ class MyCrossValidation(object):
             learner.fit(X_train_fold,args_fit[idx][0])
             learner.predict(args_fit[idx][1])
         
-            self.R_squared_collection[m]=self._R_squared(learner.prediction,Y_test_fold)
-            m+=1
-
+            self.R_squared_collection[i]=self._R_squared(learner.prediction,Y_test_fold)
+            
 
     def _cross_val(self,X,Y,learner):
         #Initialization: check correctness of data format
-        self.__sanitycheck(X,np.ndarray)
-        self.__sanitycheck(Y,np.ndarray)
+        sanitycheck(X,np.ndarray)
+        sanitycheck(Y,np.ndarray)
         
-        #Checking that the learner has two fundamental methods: fit and predict
+        learning=learner.learning_type
+        if learning == 'instance_based':
+            idx=0
+        elif learning == 'training_based':             
+            idx=1
+        else:
+            raise ValueError("Only two possible learning types are admitted: instance_based and training_based")            
+        
+        
+        #Preparing the folds
+        ndata=X.shape[0]
+    
+        if self.first_folding:
+            self.index=np.arange(ndata,dtype=int)
+            if self.shuf: np.random.shuffle(self.index)
+            self.first_folding=False #You do not want to reshuffle when a hyper parameter changes
+            
+        batch_length=ndata//self.nfolds
+             
+        #Checking that the learner is either a regressor or a classifier
         learning = learner.learner_type
             
         if(learning == 'regressor'):
-            return self._cross_val_regress(X,Y,learner)
+            return self._cross_val_regress(X,Y,learner,batch_length,idx)
         elif(learning =='classifier'):
             return self._cross_val_class(X,Y,learner)
         else:

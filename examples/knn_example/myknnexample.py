@@ -1,12 +1,8 @@
 from scipy import misc
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
-sys.path.append('/Users/Frank/Documents/GitHub/ML/')
-sys.path.append('/Users/Frank/Documents/GitHub/ML/knn')
-sys.path.append('/Users/Frank/Documents/GitHub/ML/crossvalidation')
 from knn.myknnregressor import MyKnnRegressor
-from mycrossvalidation import MyCrossValidation 
+from crossvalidation.mycrossvalidation import MyCrossValidation 
 
 face = misc.imread('examples/knn_example/photo.jpg')   
 plt.imshow(face)

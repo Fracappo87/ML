@@ -1,0 +1,10 @@
+""" authors: Francesco Capponi
+    date: 01/10/2017
+    mail: capponi.francesco87@gmail.com
+
+This is a collection of python3 modules that implements the base classes for regression and classification algorithms
+
+It contains the following submodules                                                                                                                    
+1) mylearners
+
+"""
