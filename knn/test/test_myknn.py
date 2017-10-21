@@ -16,19 +16,19 @@ class MyKnnTest(unittest.TestCase):
     
     def test_myknn_attributes(self):
         
-        print("\n testing attributes initialization")
+        print("\n testing MyKnn attributes initialization")
         
         # TEST 1: checking parameters initialization using correct parameters
         my_knn = MyKnn()
-        self.assertEqual('Euclidean',my_knn._MyKnn__dist,"a) Checking the correct value for distance choice.")
+        self.assertEqual('Euclidean',my_knn._MyKnn__dist,"a) Checking the correct value for method choice.")
         self.assertEqual(5,my_knn._MyKnn__k,"b) Checking the correct number of neighbors.")
         self.assertEqual(100,my_knn._MyKnn__leafsize,"c) Checking the correct leafsize value.")
         self.assertEqual(np.zeros(1),my_knn._MyKnn__grid_size,"d) Checking the correct grid value.")
         self.assertFalse(my_knn._MyKnn__paral,"e) Checking the correct parallelization value.")
         
         # TEST 2: checking correct exception raising when wrong input parameters are given
-        self.assertRaises(ValueError,MyKnn,distance=4)          
-        self.assertRaises(ValueError,MyKnn,distance='gababubu')
+        self.assertRaises(ValueError,MyKnn,method=4)          
+        self.assertRaises(ValueError,MyKnn,method='gababubu')
         self.assertRaises(ValueError,MyKnn,n_neighbors=.1)
         self.assertRaises(ValueError,MyKnn,n_neighbors=-11)
         self.assertRaises(ValueError,MyKnn,leafsize=.1)
@@ -41,7 +41,7 @@ class MyKnnTest(unittest.TestCase):
         
         print("\n testing the lexico method")
         
-        my_knn = MyKnn(distance="grid",n_neighbors=1,parallelize=False)
+        my_knn = MyKnn(method="grid",n_neighbors=1,parallelize=False)
           
         exts=[5,5]
         lex_index=np.arange(25,dtype=int)
@@ -81,7 +81,7 @@ class MyKnnTest(unittest.TestCase):
     def test_myknn_shell_neighbor(self):
         
         print("\n testing the shell_neighbor method")
-        my_knn = MyKnn(distance="grid",n_neighbors=1,parallelize=False)
+        my_knn = MyKnn(method="grid",n_neighbors=1,parallelize=False)
  
         shell_grade=1
         shello=np.array([[shell_grade,0],[0,shell_grade],[shell_grade,shell_grade]],dtype=int)
@@ -111,7 +111,7 @@ class MyKnnTest(unittest.TestCase):
     def test_myknn_intersect(self):
         
         print("\n testing the intersect method")
-        my_knn = MyKnn(distance="kd-tree",n_neighbors=1,parallelize=False)
+        my_knn = MyKnn(method="kd-tree",n_neighbors=1,parallelize=False)
         
         rectangle=np.array([[0,0],[1,1]])
         p=np.array([.5,.5])
@@ -127,7 +127,7 @@ class MyKnnTest(unittest.TestCase):
         X=np.array([[0,0],[0,1],[1,0],[1,1]])
         Y=np.array([1,2,3,4])
         
-        my_knn = MyKnn(distance="kd-tree",n_neighbors=1,parallelize=False)
+        my_knn = MyKnn(method="kd-tree",n_neighbors=1,parallelize=False)
         tree=my_knn._my_kdtree(X,X.shape[1])
         for k in tree: 
             if k[0] is not None:
@@ -156,7 +156,7 @@ class MyKnnTest(unittest.TestCase):
         X=np.array([[0,0],[0,1],[1,0],[1,1]])
         Y=np.array([1,2,3,4])
         
-        my_knn = MyKnn(distance="kd-tree",n_neighbors=1,parallelize=False)
+        my_knn = MyKnn(method="kd-tree",n_neighbors=1,parallelize=False)
         tree=my_knn._my_kdtree(X,X.shape[1])
         sqd,idx=my_knn._search_kdtree(tree,X[0],3)
         self.assertEqual((Y[idx]-Y[:2]).sum(),0,"a) Checking kdtree search method")
@@ -169,7 +169,7 @@ class MyKnnTest(unittest.TestCase):
         X_test=np.array([0])
         
         for i in range(1,X.shape[0]):
-            my_knn = MyKnn(distance="Euclidean",n_neighbors=i,parallelize=False)
+            my_knn = MyKnn(method="Euclidean",n_neighbors=i,parallelize=False)
             my_knn.fit(X,X_test)
             neib,dist=np.arange(1,i+1),np.arange(1,i+1)
             self.assertEqual((neib-X[my_knn.neighbors_idx]).sum(),0,"a) Checking knn idx with 1D mock example.")
@@ -179,25 +179,25 @@ class MyKnnTest(unittest.TestCase):
         X_test=np.array([[0,0]])
         
         # 1 neighbor
-        my_knn = MyKnn(distance="Euclidean",n_neighbors=1,parallelize=False)
+        my_knn = MyKnn(method="Euclidean",n_neighbors=1,parallelize=False)
         my_knn.fit(X,X_test)
         self.assertEqual((X[0]-X[my_knn.neighbors_idx]).sum(),0,"c) Checking 1nn neighbors idx with 2D mock example.")
         self.assertEqual((1-my_knn.neighbors_dist).sum(),0,"d) Checking 1nn distance vector with 2D mock example.")
         
         # 2 neighbors
-        my_knn = MyKnn(distance="Euclidean",n_neighbors=2,parallelize=False)
+        my_knn = MyKnn(method="Euclidean",n_neighbors=2,parallelize=False)
         my_knn.fit(X,X_test)
         self.assertEqual((X[0::2]-X[my_knn.neighbors_idx]).sum(),0,"e) Checking 2nn neighbors idx with 2D mock example.")
         self.assertEqual((np.array([1,2])-my_knn.neighbors_dist).sum(),0,"f) Checking 2nn distance vector with 2D mock example.")
         
         # 3 neighbors
-        my_knn = MyKnn(distance="Euclidean",n_neighbors=3,parallelize=False)
+        my_knn = MyKnn(method="Euclidean",n_neighbors=3,parallelize=False)
         my_knn.fit(X,X_test)
         self.assertEqual((X[np.array([0,2,1])]-X[my_knn.neighbors_idx]).sum(),0,"g) Checking 3nn neighbors idx with 2D mock example.")
         self.assertEqual((np.array([1,2,np.sqrt(5)])-my_knn.neighbors_dist).sum(),0,"h) Checking 3nn distance vector with 2D mock example.")
         
         # 4 neighbors
-        my_knn = MyKnn(distance="Euclidean",n_neighbors=4,parallelize=False)
+        my_knn = MyKnn(method="Euclidean",n_neighbors=4,parallelize=False)
         my_knn.fit(X,X_test)
         self.assertEqual((X[np.array([0,2,1,3])]-X[my_knn.neighbors_idx]).sum(),0,"i) Checking 3nn neighbors idx with 2D mock example.")
         self.assertEqual((np.array([1,2,np.sqrt(5),3])-my_knn.neighbors_dist).sum(),0,"j) Checking 3nn distance vector with 2D mock example.")
@@ -206,25 +206,25 @@ class MyKnnTest(unittest.TestCase):
         X_test=np.array([[0,0,0,0]])
         
         # 1 neighbor
-        my_knn = MyKnn(distance="Euclidean",n_neighbors=1,parallelize=False)
+        my_knn = MyKnn(method="Euclidean",n_neighbors=1,parallelize=False)
         my_knn.fit(X,X_test)
         self.assertEqual((X[0]-X[my_knn.neighbors_idx]).sum(),0,"k) Checking 1nn neighbors idx with 4D mock example.")
         self.assertEqual((1-my_knn.neighbors_dist).sum(),0,"l) Checking 1nn distance vector with 4D mock example.")
         
         # 2 neighbors
-        my_knn = MyKnn(distance="Euclidean",n_neighbors=2,parallelize=False)
+        my_knn = MyKnn(method="Euclidean",n_neighbors=2,parallelize=False)
         my_knn.fit(X,X_test)
         self.assertEqual((X[:2]-X[my_knn.neighbors_idx]).sum(),0,"m) Checking 2nn neighbors idx with 4D mock example.")
         self.assertEqual((np.array([1,np.sqrt(6.)])-my_knn.neighbors_dist).sum(),0,"n) Checking 2nn distance vector with 4D mock example.")
         
         # 3 neighbors
-        my_knn = MyKnn(distance="Euclidean",n_neighbors=3,parallelize=False)
+        my_knn = MyKnn(method="Euclidean",n_neighbors=3,parallelize=False)
         my_knn.fit(X,X_test)
         self.assertEqual((X[:3]-X[my_knn.neighbors_idx]).sum(),0,"o) Checking 3nn neighbors idx with 4D mock example.")
         self.assertEqual((np.array([1,np.sqrt(6.),np.sqrt(14.)])-my_knn.neighbors_dist).sum(),0,"p) Checking 3nn distance vector with 4D mock example.")
         
         # 4 neighbors
-        my_knn = MyKnn(distance="Euclidean",n_neighbors=4,parallelize=False)
+        my_knn = MyKnn(method="Euclidean",n_neighbors=4,parallelize=False)
         my_knn.fit(X,X_test)
         self.assertEqual((X-X[my_knn.neighbors_idx]).sum(),0,"q) Checking 3nn neighbors idx with 4D mock example.")
         self.assertEqual((np.array([1,np.sqrt(6.),np.sqrt(14.),np.sqrt(19.)])-my_knn.neighbors_dist).sum(),0,"r) Checking 3nn distance vector with 4D mock example.")
@@ -238,25 +238,25 @@ class MyKnnTest(unittest.TestCase):
         X_test=np.array([[0,0]])
         extensions=np.array([4,2])
         # 1 neighbor
-        my_knn = MyKnn(distance="grid",n_neighbors=1,grid_size=extensions,parallelize=False)
+        my_knn = MyKnn(method="grid",n_neighbors=1,grid_size=extensions,parallelize=False)
         my_knn.fit(X,X_test)
         self.assertEqual((X[0]-X[my_knn.neighbors_idx]).sum(),0,"a) Checking 1nn neighbors idx with 2D mock example.")
         self.assertEqual((1-my_knn.neighbors_dist).sum(),0,"b) Checking 1nn distance vector with 2D mock example.")
         
         # 2 neighbors
-        my_knn = MyKnn(distance="grid",n_neighbors=2,grid_size=extensions,parallelize=False)
+        my_knn = MyKnn(method="grid",n_neighbors=2,grid_size=extensions,parallelize=False)
         my_knn.fit(X,X_test)
         self.assertEqual((X[0::2]-X[my_knn.neighbors_idx]).sum(),0,"c) Checking 2nn neighbors idx with 2D mock example.")
         self.assertEqual((np.array([1,2])-my_knn.neighbors_dist).sum(),0,"d) Checking 2nn distance vector with 2D mock example.")
         
         # 3 neighbors
-        my_knn = MyKnn(distance="grid",n_neighbors=3,grid_size=extensions,parallelize=False)
+        my_knn = MyKnn(method="grid",n_neighbors=3,grid_size=extensions,parallelize=False)
         my_knn.fit(X,X_test)
         self.assertEqual((X[np.array([0,2,1])]-X[my_knn.neighbors_idx]).sum(),0,"e) Checking 3nn neighbors idx with 2D mock example.")
         self.assertEqual((np.array([1,2,np.sqrt(5)])-my_knn.neighbors_dist).sum(),0,"f) Checking 3nn distance vector with 2D mock example.")
         
         # 4 neighbors
-        my_knn = MyKnn(distance="grid",n_neighbors=4,grid_size=extensions,parallelize=False)
+        my_knn = MyKnn(method="grid",n_neighbors=4,grid_size=extensions,parallelize=False)
         my_knn.fit(X,X_test)
         self.assertEqual((X[np.array([0,2,1,3])]-X[my_knn.neighbors_idx]).sum(),0,"g) Checking 3nn neighbors idx with 2D mock example.")
         self.assertEqual((np.array([1,2,np.sqrt(5),3])-my_knn.neighbors_dist).sum(),0,"h) Checking 3nn distance vector with 2D mock example.")

@@ -74,7 +74,7 @@ Rsquares=np.zeros((len(test_values),nfolds))
 
 
 for k in test_values:
-    my_knn_fold=MyKnnRegressor(distance="kd-tree",criterion="weighted",n_neighbors=k,leafsize=100,parallelize=False)
+    my_knn_fold=MyKnnRegressor(method="kd-tree",criterion="weighted",n_neighbors=k,leafsize=100,parallelize=False)
     mycv.cross_val(X_train,Y_train,my_knn_fold)  
     Rsquares[k-1,:]=mycv.R_squared_collection
     
@@ -102,7 +102,7 @@ plt.legend()
 optimal_k=test_values[opt_val[0,0]]
  # Applying the algorithm with optimal number of neighbors
 
-my_knn=MyKnnRegressor(distance="kd-tree",criterion="weighted",n_neighbors=optimal_k,leafsize=100,parallelize=False)
+my_knn=MyKnnRegressor(method="kd-tree",criterion="weighted",n_neighbors=optimal_k,leafsize=100,parallelize=False)
 my_knn.fit(X_train,X_test)
 my_knn.predict(Y_train)
 

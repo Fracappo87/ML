@@ -8,7 +8,7 @@ Created on Fri Oct  6 06:59:45 2017
 import numpy as np
 import matplotlib.pyplot as plt
 from crossvalidation.mycrossvalidation import MyCrossValidation
-from knn.myknnregressor import MyKnnRegressor
+from knn.myknnclassifier import MyKnnClassifier
 
 
 def generate_mock_data(ndata_per_cluster=10,N=10):
@@ -55,7 +55,7 @@ def generate_mock_data(ndata_per_cluster=10,N=10):
         
         
         
-ndata_per_cluster=50
+ndata_per_cluster=500
 pole_value=.02
 X_train,y_train,X_test,y_test=generate_mock_data(ndata_per_cluster,pole_value)
         
@@ -63,45 +63,50 @@ plt.figure()
 plt.xlabel('X')
 plt.ylabel('Y')
 colors=['r','b','g','k']
+markers=['s','o','v','*']
 for i in range(4):
-     plt.scatter(X_train[i*ndata_per_cluster:(i+1)*ndata_per_cluster,0],X_train[i*ndata_per_cluster:(i+1)*ndata_per_cluster,1],c=y_train[i*ndata_per_cluster:(i+1)*ndata_per_cluster])                          
+     indexes=y_train[i*ndata_per_cluster:(i+1)*ndata_per_cluster]
+     plt.scatter(X_train[i*ndata_per_cluster:(i+1)*ndata_per_cluster,0],X_train[i*ndata_per_cluster:(i+1)*ndata_per_cluster,1],c=indexes)                         
 
 
 # Tuning the number of neighbors by doing k-fold cross validation
 
-nfolds=5
-mycv = MyCrossValidation(kfolds=5,reshuffle=True)
-test_values=range(1,ndata_per_cluster+10)
-Rsquares=np.zeros((len(test_values),nfolds))
+#nfolds=5
+#mycv = MyCrossValidation(kfolds=5,reshuffle=True)
+#test_values=range(1,ndata_per_cluster+10)
+#Rsquares=np.zeros((len(test_values),nfolds))
 
 
-for k in test_values:
-    my_knn_fold=MyKnnRegressor(distance="Euclidean",criterion="weighted",n_neighbors=k)
-    mycv.cross_val(X_train,y_train,my_knn_fold)  
-    Rsquares[k-1,:]=mycv.R_squared_collection
+#for k in test_values:
+#    my_knn_fold=MyKnnRegressor(method="Euclidean",criterion="weighted",n_neighbors=k)
+#    mycv.cross_val(X_train,y_train,my_knn_fold)  
+#    Rsquares[k-1,:]=mycv.R_squared_collection
     
-plt.figure()
-plt.xlabel('Number of neighbors')
-plt.ylabel('R^2')
-plt.title('Determination coefficient across the fold')
+#plt.figure()
+#plt.xlabel('Number of neighbors')
+#plt.ylabel('R^2')
+#plt.title('Determination coefficient across the fold')
    
-for i in range(nfolds):
-     plt.plot(test_values,1-Rsquares[:,i],)                          
+#for i in range(nfolds):
+#     plt.plot(test_values,1-Rsquares[:,i],)                          
 
 
-avg_across_folds=(1-Rsquares).mean(axis=1)
-plt.plot(test_values,avg_across_folds,'-',color='k',label='average across the folds')
+#avg_across_folds=(1-Rsquares).mean(axis=1)
+#plt.plot(test_values,avg_across_folds,'-',color='k',label='average across the folds')
 
-opt_val=np.argwhere(avg_across_folds==avg_across_folds.min())        
-plt.axvline(test_values[opt_val[0,0]],color='k',linestyle='--',label = 'optimal k')    
+#opt_val=np.argwhere(avg_across_folds==avg_across_folds.min())        
+#plt.axvline(test_values[opt_val[0,0]],color='k',linestyle='--',label = 'optimal k')    
   
-plt.legend()
+#plt.legend()
 
-optimal_k=test_values[opt_val[0,0]]
-
+#optimal_k=test_values[opt_val[0,0]]
+optimal_k=10
 # Applying the algorithm with optimal number of neighbors
 
-my_knn=MyKnnRegressor(distance="Euclidean",criterion="weighted",n_neighbors=optimal_k)
+my_knn=MyKnnClassifier(method="Euclidean",criterion="weighted",n_neighbors=optimal_k,leafsize=20)
+rangesx,rangesy=np.linspace(X_train.min(),X_train.max(),200),np.linspace(X_train.min(),X_train.max(),200)
+xv, yv = np.meshgrid(rangesx, rangesy)
+X_test=np.column_stack((xv.flatten(),yv.flatten()))
 my_knn.fit(X_train,X_test)
 my_knn.predict(y_train)
 
@@ -112,6 +117,7 @@ print(mycv.R_squared(my_knn.prediction,y_test))
 plt.figure()
 plt.xlabel('X')
 plt.ylabel('Y')
+plt.scatter(X_test[:,0],X_test[:,1],c=my_knn.prediction)                          
 for i in range(4):
-     plt.scatter(X_test[i*ndata_per_cluster:(i+1)*ndata_per_cluster,0],X_test[i*ndata_per_cluster:(i+1)*ndata_per_cluster,1],c=y_test[i*ndata_per_cluster:(i+1)*ndata_per_cluster])                          
-     plt.scatter(X_test[i*ndata_per_cluster:(i+1)*ndata_per_cluster,0],X_test[i*ndata_per_cluster:(i+1)*ndata_per_cluster,1],c=my_knn.prediction[i*ndata_per_cluster:(i+1)*ndata_per_cluster],marker='+',s=100)
+     indexes=y_train[i*ndata_per_cluster:(i+1)*ndata_per_cluster]
+     plt.scatter(X_train[i*ndata_per_cluster:(i+1)*ndata_per_cluster,0],X_train[i*ndata_per_cluster:(i+1)*ndata_per_cluster,1],c=indexes)                         

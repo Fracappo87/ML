@@ -1,34 +1,32 @@
 # -*- coding: utf-8 -*-
 """
-
 Author: Francesco Capponi <capponi.francesco87@gmail.com>
         David Preti       <preti.david@gmail.com>
 
 License: BSD 3 clause
-
 """
 
 import numpy as np
+# from metrics.myscores import R_squared
 from checks.mycheck import sanitycheck
 
 class MyCrossValidation(object):
 
     """
-        My class for generation of the cross validation process.
-        
-        Methods:
-                
-        1) R_squared(self,y_pred,y_test)
-        2) cross_val(X,Y,learner)
-        
-        Attributes:
-        
-        1) nfolds: int.
-           Number of folds 
-        2) first_folding: Bool.
-           Bool variables that check if the index mask used for the folding has been initialized
-        3) R_squared_collection: numpy.ndarray, shape = [nfolds]
-           Collection of determination coefficients computed for each fold (regression learning only)
+    My class for generation of the cross validation process.
+    
+    Methods:
+            
+    1) cross_val(X,Y,learner)
+    
+    Attributes:
+    
+    1) nfolds: int.
+       Number of folds 
+    2) first_folding: Bool.
+       Bool variables that check if the index mask used for the folding has been initialized
+    3) R_squared_collection: numpy.ndarray, shape = [nfolds]
+       Collection of learning scores computed for each fold (regression learning only)
     """
 
     def __init__(self,kfolds=5,reshuffle=True):
@@ -48,55 +46,34 @@ class MyCrossValidation(object):
         Public methods.
     """
 
-    def R_squared(self,y_pred,y_test):
-        """
-            Compute the determination coefficient:
-
-            Parameters
-            ----------
-            y_pred,y_test : numpy-like, shape = [n_test_sample,n_features]
-        """
-        return self._R_squared(y_pred,y_test)
-
-
-
     def cross_val(self,X,Y,learner):
         """         
-            Apply k-fold cross validation using the training data:
+        Apply k-fold cross validation using the training data:
 
-            Parameters
-            ----------
-            X:  numpy-like, shape = [n_train_sample,n_features]
-            input features training data            
-            
-            Y : numpy-like, shape = [n_train_sample,n_features]
-            output features training data 
-            
-            learner: any object referring to a learning algorithm (for classification or regression)
-            a specific check is applied to ensure that such object has a "fit" and "predict 
-            " method.
-            
-            Returns
-            -------
-            R_squared_collection: numpy-like, shape = [nfolds]
-            Array of determination coefficients, whose dimension depends on the number of folds.
+        Parameters
+        ----------
+        X:  numpy-like, shape = [n_train_sample,n_features]
+        input features training data            
+        
+        Y : numpy-like, shape = [n_train_sample,n_features]
+        output features training data 
+        
+        learner: any object referring to a learning algorithm (for classification or regression)
+        a specific check is applied to ensure that such object has a "fit" and "predict 
+        " method.
+        
+        Returns
+        -------
+        R_squared_collection: numpy-like, shape = [nfolds]
+        Array of learning scores, whose dimension depends on the number of folds.
         """
         return self._cross_val(X,Y,learner)
         
-##############################################################################
-      
-    def _R_squared(self,y_pred,y_test):
-        if(y_pred.shape != y_test.shape):
-            raise ValueError("prediction and validation data arrays must have the same shape")
-        rat1=np.power(y_test-y_pred,2).sum()
-        avg=np.mean(y_test,axis=0)
-        rat2=np.power(y_test-avg,2).sum()
-        return 1-rat1/rat2
-        
+##############################################################################        
         
     def _cross_val_regress(self,X,Y,learner,batch_length,idx):
         """
-            Apply k-fold cross validation for the given regression learner
+        Apply k-fold cross validation for the given regression learner
         """
 
         self.R_squared_collection = np.zeros(self.nfolds)
@@ -115,7 +92,7 @@ class MyCrossValidation(object):
             learner.fit(X_train_fold,args_fit[idx][0])
             learner.predict(args_fit[idx][1])
         
-            self.R_squared_collection[i]=self._R_squared(learner.prediction,Y_test_fold)
+            self.R_squared_collection[i]=learner.score(learner.prediction,Y_test_fold)
             
 
     def _cross_val(self,X,Y,learner):

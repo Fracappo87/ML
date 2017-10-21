@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
 """
+Created on Tue Oct 10 06:48:59 2017
 
 Author: Francesco Capponi <capponi.francesco87@gmail.com>
-        David Preti       <preti.david@gmail.com>
-
 License: BSD 3 clause
-
 """
 
 import numpy as np
 from knn.myknn import MyKnn
-from learners.mylearners import MyRegressor
+from learners.mylearners import MyClassifier
 from checks.mycheck import sanitycheck
 
-class MyKnnRegressor(MyKnn,MyRegressor):
+class MyKnnClassifier(MyKnn,MyClassifier):
 
     """
-    Our KNN regressor. It allows regression studies the k-nearest-neighbors algorithms
+    Our KNN classifier. It allows classification analysis using the k-nearest-neighbors algorithm
     of the class MyKnn
     
     Private parameters
@@ -27,9 +25,9 @@ class MyKnnRegressor(MyKnn,MyRegressor):
     Attributes
     ---------- 
     prediction: numpy arry, shape=[n_test_samples, n_output_features]. 
-    Predicted values for target variable
+    Predicted class codes for target variable
     
-    The class inherit the following attributes from its parent classes:
+    The class inherits the following attributes from its parent classes:
     """
 
 
@@ -45,6 +43,7 @@ class MyKnnRegressor(MyKnn,MyRegressor):
         self.learning_type='instance_based'
         
 ##############################################################################
+##############################################################################
 
     """
         Public methods.
@@ -52,23 +51,24 @@ class MyKnnRegressor(MyKnn,MyRegressor):
     
     def predict(self, Y_train):
         """
-            Predict the value of new input distances using the fitted KNN regressor.
-            It has to be called after having used the "fit" method.
+            Predict the class code of new input distances using the fitted number of neighbors.
+            It has to be called after having used the "fit" method of its parent class.
 
             Parameters:
             ----------
 
             Y_train : numpy-like, shape = [n_samples, n_output_features]
 
-            The method compute takes information from the following attributes
+            The method takes information from the following attributes
 
             neighbors_idx : numpy-like, shape = [n_test_samples, n_first_k_neighbors]
             neighbors_dist :  numpy-like, shape = [n_test_samples, n_first_k_neighbors]
             
-            and use them to predict the output values of the new instances.         
+            and use them to predict the output class code of the new instances.         
         """
 
         return self._predict(Y_train)
+
 
              
     def _predict(self, Y_train):
@@ -86,14 +86,13 @@ class MyKnnRegressor(MyKnn,MyRegressor):
         else:
             raise ValueError("Output vector must have the following shapes:\n [n_samples,], shape=(k,)\n or \n [n_samples, n_input_features] : shape=(k,l)\n")
         self.prediction=np.zeros([len(self.neighbors_idx),length])
-        
+
         if self.__crit=="flat":
             for i,j in enumerate(self.neighbors_idx):
-                self.prediction[i]=Y_train[j].mean(axis=0)
+                u, indices = np.unique(Y_train[j], return_inverse=True)
+                self.prediction[i]=u[np.argmax(np.bincount(indices))]
         elif self.__crit=="weighted":
             for i,j in enumerate(zip(self.neighbors_idx,self.neighbors_dist)):
-                self.prediction[i]=np.average(Y_train[j[0]],axis=0,weights=1/j[1])
-            
-            
-            
-            
+                u, indices = np.unique(Y_train[j[0]], return_inverse=True)
+                idx=round(np.average(indices,axis=0,weights=1/j[1]))                
+                self.prediction[i]=u[int(idx)]

@@ -28,10 +28,10 @@ class MyKnn(object):
     """
 
 
-    def __init__(self,distance="Euclidean",n_neighbors=5,leafsize=100,grid_size=np.zeros(1),parallelize=False):
+    def __init__(self,method="Euclidean",n_neighbors=5,leafsize=100,grid_size=np.zeros(1),parallelize=False):
 
-        if not isinstance(distance, str):
-            raise ValueError("distance has to be a string!.")
+        if not isinstance(method, str):
+            raise ValueError("method has to be a string!.")
         elif (not isinstance(n_neighbors, int)) or (n_neighbors <= 0):
             raise ValueError("number of neighbors has to be a positive integer number!.")
         elif (not isinstance(leafsize, int)) or (leafsize <= 0):
@@ -40,10 +40,10 @@ class MyKnn(object):
             raise ValueError("grid size has to be a bidimensional array!")
         elif not isinstance(parallelize, bool):
             raise ValueError("parallelize has to be a bool variable, True or False!.")
-        elif distance!='Euclidean' and distance != 'L1' and distance != 'grid' and distance != "kd-tree":
-            raise ValueError("distance method can only be \" Euclidean\", \"L1\", \"grid\" or \"kd-tree\"!.")
+        elif method!='Euclidean' and method != 'L1' and method != 'grid' and method != "kd-tree":
+            raise ValueError("method method can only be \" Euclidean\", \"L1\", \"grid\" or \"kd-tree\"!.")
         
-        self.__dist=distance
+        self.__dist=method
         self.__k=n_neighbors
         self.__paral=parallelize
         self.__leafsize = leafsize
@@ -459,15 +459,15 @@ class MyKnn(object):
 
             X_train : numpy-like, shape = [n_samples, n_input_features]
             X_test : numpy-like, shape = [n_test_samples, n_input_features]
-            extensions : numpy-like, shape = [Nx,Ny] the lattice extensions Nx, and Ny, usually equal to np.max(X_train,axis=0). To be initialized only when "grid" distance is adopted
+            extensions : numpy-like, shape = [Nx,Ny] the lattice extensions Nx, and Ny, usually equal to np.max(X_train,axis=0). To be initialized only when "grid" method is adopted
             leafsize : int, to be modified when the kdtree method is applied
 
             The method works in a quite simple way, depending on the value of the following class attributes
             
             parallelize : False the method "fit_serial" gets called.
             parallelize=True : the method "fit_parallel" gets called.
-            distance = "grid" : the method "fit_grid" is called.
-            distance = "kd-tree" : the method "fit_kdtree_search" is called           
+            method = "grid" : the method "fit_grid" is called.
+            method = "kd-tree" : the method "fit_kdtree_search" is called           
             
             Each of the above mentioned methods compute the firs k neighbors of the instances contained in X_test, along with the relative distances
             in feature space.
