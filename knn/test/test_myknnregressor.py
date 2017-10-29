@@ -7,6 +7,7 @@ License: BSD 3 clause
 
 import unittest
 import numpy as np
+import numpy.testing as npt
 from mock import generate_mock_data as gmd
 from ..myknnregressor import MyKnnRegressor
 
@@ -19,7 +20,7 @@ class MyKnnRegressorTest(unittest.TestCase):
         
         # TEST 1: checking parameters initialization using correct parameters
         print("\n testing MyKnnRegressor attributes initialization")        
-        my_knn = MyKnnRegressor(method="Euclidean",criterion="flat",n_neighbors=1,parallelize=False)
+        my_knn = MyKnnRegressor(method="classic",criterion="flat",n_neighbors=1,parallelize=False)
         self.assertEqual(my_knn.learner_type,"regressor","a) Checking knn attribute 'learner_type'.")
         self.assertEqual(my_knn.learning_type,"instance_based","b) Checking knn attribute 'learning_type'.")
         
@@ -64,8 +65,8 @@ class MyKnnRegressorTest(unittest.TestCase):
                 
         for i in range(1,size_train+1):
                     
-            my_knn1 = MyKnnRegressor(method="Euclidean",criterion="flat",n_neighbors=i,parallelize=False)
-            my_knn2 = MyKnnRegressor(method="Euclidean",criterion="weighted",n_neighbors=i,parallelize=False)
+            my_knn1 = MyKnnRegressor(method="classic",criterion="flat",n_neighbors=i,parallelize=False)
+            my_knn2 = MyKnnRegressor(method="classic",criterion="weighted",n_neighbors=i,parallelize=False)
                     
             for i in n_input_feat:
                 for j in n_output_feat:
@@ -76,9 +77,8 @@ class MyKnnRegressorTest(unittest.TestCase):
                     my_knn2.fit(A,B)
                     my_knn2.predict(C)
                     test_vec=C[:size_test]
-                    
-                    self.assertTrue(abs(test_vec-my_knn1.prediction).sum()<1e-12,"a) Checking knn regression with flat criterion.")
-                    self.assertTrue(abs(test_vec-my_knn2.prediction).sum()<1e-12,"b) Checking knn regression with weighted criterion.")
+                    npt.assert_array_almost_equal(test_vec,my_knn1.prediction,decimal=10,err_msg="a) Checking knn regression with flat criterion.")
+                    npt.assert_array_almost_equal(test_vec,my_knn2.prediction,decimal=10,err_msg="b) Checking knn regression with weighted criterion.")
         
         
          # TEST 2
@@ -89,8 +89,8 @@ class MyKnnRegressorTest(unittest.TestCase):
         
         for i in range(1,size_train//2+1):
                     
-            my_knn1 = MyKnnRegressor(method="Euclidean",criterion="flat",n_neighbors=i,parallelize=False)
-            my_knn2 = MyKnnRegressor(method="Euclidean",criterion="weighted",n_neighbors=i,parallelize=False)
+            my_knn1 = MyKnnRegressor(method="classic",criterion="flat",n_neighbors=i,parallelize=False)
+            my_knn2 = MyKnnRegressor(method="classic",criterion="weighted",n_neighbors=i,parallelize=False)
                     
             for i in n_input_feat:
                 for j in n_output_feat:
@@ -104,13 +104,13 @@ class MyKnnRegressorTest(unittest.TestCase):
                     test_vec=C[:size_test//2]
                     test_vec=np.concatenate((test_vec,-test_vec),axis=0)
                         
-                    self.assertTrue(abs(test_vec-my_knn1.prediction).sum()<1e-12,"c) Checking knn regression with flat criterion, 1<k<n_train_samples//2.")
-                    self.assertTrue(abs(test_vec-my_knn2.prediction).sum()<1e-12,"d) Checking knn regression with weighted criterion, 1<k<n_train_samples//2.")
+                    npt.assert_array_almost_equal(test_vec,my_knn1.prediction,decimal=10,err_msg="c) Checking knn regression with flat criterion, 1<k<n_train_samples//2.")
+                    npt.assert_array_almost_equal(test_vec,my_knn2.prediction,decimal=10,err_msg="d) Checking knn regression with weighted criterion, 1<k<n_train_samples//2.")
         
         for i in range(size_train//2+2,size_train+1):
                     
-            my_knn1 = MyKnnRegressor(method="Euclidean",criterion="flat",n_neighbors=i,parallelize=False)
-            my_knn2 = MyKnnRegressor(method="Euclidean",criterion="weighted",n_neighbors=i,parallelize=False)
+            my_knn1 = MyKnnRegressor(method="classic",criterion="flat",n_neighbors=i,parallelize=False)
+            my_knn2 = MyKnnRegressor(method="classic",criterion="weighted",n_neighbors=i,parallelize=False)
                     
             for i in n_input_feat:
                 for j in n_output_feat:
@@ -121,8 +121,8 @@ class MyKnnRegressorTest(unittest.TestCase):
                     my_knn2.fit(A,B)
                     my_knn2.predict(C)
                     
-                    self.assertTrue((abs(my_knn1.prediction)<abs(y_val)).all(),"e) Checking knn regression with flat criterion, n_train_samples//2 < k <= n_train_samples.")
-                    self.assertTrue((abs(my_knn2.prediction)<abs(y_val)).all(),"f) Checking knn regression with weighted criterion, n_train_samples//2 <= k < n_train_samples.")
+                    npt.assert_array_less(abs(my_knn1.prediction),abs(y_val),err_msg="e) Checking knn regression with flat criterion, n_train_samples//2 < k <= n_train_samples.")
+                    npt.assert_array_less(abs(my_knn2.prediction),abs(y_val),err_msg="f) Checking knn regression with weighted criterion, n_train_samples//2 <= k < n_train_samples.")
         
         
     def test_myknnregressor_predict_with_fit_grid(self):
@@ -150,12 +150,16 @@ class MyKnnRegressorTest(unittest.TestCase):
                     
                     The result of knn regression for these two points should be
                     
-                    a) KNN[(0,0)]_k = +val, if k<= min(Nx,Ny)/2
-                       KNN[(Nx-1,Ny-1)]_k = -val, if k<= min(Nx,Ny)/2
+                    a) KNN[(0,0)]_k = +val, if k<= min(Nx,Ny)^2/4
+                       KNN[(Nx-1,Ny-1)]_k = -val, if k<= min(Nx,Ny)^2/4
     
                         where min(Nx,Ny)=Nx if Nx<Ny, Ny otherwise
                         
-                    b) |KNN[(0,0)]_k| <=val, if k> min(Nx,Ny)/2
+                    b) |KNN[(0,0)]_k| <val, if   M <= k<= Nx*Ny-2, with large enough M
+                    Here, a less rigorous approach has to be adopted, since the prediction outcome
+                    strictly depends on the linear dimensions of the system and how the different shells 
+                    of neighbors get created.
+                       
         """
         
         print("\n testing predict method using grid knn regressor")
@@ -184,16 +188,31 @@ class MyKnnRegressorTest(unittest.TestCase):
                     my_knn2.fit(A,B)
                     my_knn2.predict(C)
                     test_vec=C[:(j[0]*j[1]-a)]
-                    self.assertTrue(abs(test_vec-my_knn1.prediction).sum()<1e-12,"a) Checking knn grid regression with flat criterion.")
-                    self.assertTrue(abs(test_vec-my_knn2.prediction).sum()<1e-12,"b) Checking knn grid regression with weighted criterion.")
+                    npt.assert_array_almost_equal(test_vec,my_knn1.prediction,decimal=10,err_msg="a) Checking knn grid regression with flat criterion.")
+                    npt.assert_array_almost_equal(test_vec,my_knn2.prediction,decimal=10,err_msg="b) Checking knn grid regression with weighted criterion.")
         
-        sizes=[[5,5],[3,10],[7,10]]
+        sizes=[[3,2],[5,4],[10,3]]
         n_output_feat=[1,3,6]
         y_val=-.6        
         for i in sizes:
             extensions=np.array([i[0]*2,i[1]*2],dtype=int)
             
-            for j in [1,min(i)]:
+            for j in [1,int(min(extensions)//2*min(extensions)//2)]:
+                my_knn1 = MyKnnRegressor(method="grid",criterion="flat",n_neighbors=j,grid_size=extensions,parallelize=False)
+                my_knn2 = MyKnnRegressor(method="grid",criterion="weighted",n_neighbors=j,grid_size=extensions,parallelize=False)
+        
+                for k in n_output_feat:
+                    A,C,B=gmd.generate_grid_arrays_double_pole(i[0],i[1],k,y_val)
+                    
+                    my_knn1.fit(A,B)
+                    my_knn1.predict(C)
+                    my_knn2.fit(A,B)
+                    my_knn2.predict(C) 
+                    npt.assert_array_almost_equal(abs(my_knn1.prediction),abs(y_val),decimal=10,err_msg="c) Checking knn regression with flat criterion, 1<k<=min(Nx,Ny)//2.")
+                    npt.assert_array_almost_equal(abs(my_knn2.prediction),abs(y_val),decimal=10,err_msg="d) Checking knn regression with weighted criterion, 1<k<=min(Nx,Ny)//2.")
+           
+            for j in [int(extensions[0]*extensions[1]-5),int(extensions[0]*extensions[1]-1)]:
+                
                 my_knn1 = MyKnnRegressor(method="grid",criterion="flat",n_neighbors=j,grid_size=extensions,parallelize=False)
                 my_knn2 = MyKnnRegressor(method="grid",criterion="weighted",n_neighbors=j,grid_size=extensions,parallelize=False)
         
@@ -202,16 +221,15 @@ class MyKnnRegressorTest(unittest.TestCase):
             
                     my_knn1.fit(A,B)
                     my_knn1.predict(C)
-
                     my_knn2.fit(A,B)
                     my_knn2.predict(C)   
-                    test_vec=C[:1]
-                    test_vec=np.concatenate((test_vec,-test_vec),axis=0)
-                    self.assertTrue(abs(test_vec-my_knn1.prediction).sum()<1e-12,"c) Checking knn regression with flat criterion, 1<k<=min(Nx,Ny)//2.")
-                    self.assertTrue(abs(test_vec-my_knn2.prediction).sum()<1e-12,"d) Checking knn regression with weighted criterion, 1<k<=min(Nx,Ny)//2.")
-
-        
-        #To be added: test for the regression with kdtree
-        #test_myknnregressor_predict_with_fit_kd_tree
+                    
+                    npt.assert_array_less(abs(my_knn1.prediction),abs(y_val),err_msg="e) Checking knn regression with flat criterion, min(Nx,Ny)//2 < k <= Nx*Ny-2.")
+                    npt.assert_array_less(abs(my_knn2.prediction),abs(y_val),err_msg="f) Checking knn regression with weighted criterion, M < k <= Nx*Ny-2.")
+    
 if __name__ == '__main__':
     unittest.main()
+
+    #To be added: test for the regression with kdtree
+        #test_myknnregressor_predict_with_fit_kd_tree
+        

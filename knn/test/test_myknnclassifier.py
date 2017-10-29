@@ -10,6 +10,7 @@ License: BSD 3 clause
 
 import unittest
 import numpy as np
+import numpy.testing as npt
 from mock import generate_mock_data as gmd
 from ..myknnclassifier import MyKnnClassifier
         
@@ -22,7 +23,7 @@ class MyKnnClassifierTest(unittest.TestCase):
         
         # TEST 1: checking parameters initialization using correct parameters
         print("\n testing MyKnnClassifier attributes initialization")        
-        my_knn = MyKnnClassifier(method="Euclidean",criterion="flat",n_neighbors=1,parallelize=False)
+        my_knn = MyKnnClassifier(method="classic",criterion="flat",n_neighbors=1,parallelize=False)
         self.assertEqual(my_knn.learner_type,"classifier","a) Checking knn attribute 'learner_type'.")
         self.assertEqual(my_knn.learning_type,"instance_based","b) Checking knn attribute 'learning_type'.")
         
@@ -65,8 +66,8 @@ class MyKnnClassifierTest(unittest.TestCase):
                 
         for i in range(1,size_train+1):
                     
-            my_knn1 = MyKnnClassifier(method="Euclidean",criterion="flat",n_neighbors=i,parallelize=False)
-            my_knn2 = MyKnnClassifier(method="Euclidean",criterion="weighted",n_neighbors=i,parallelize=False)
+            my_knn1 = MyKnnClassifier(method="classic",criterion="flat",n_neighbors=i,parallelize=False)
+            my_knn2 = MyKnnClassifier(method="classic",criterion="weighted",n_neighbors=i,parallelize=False)
                     
             for i in n_input_feat:
                 for j in n_output_feat:
@@ -78,8 +79,8 @@ class MyKnnClassifierTest(unittest.TestCase):
                     my_knn2.predict(C)
                     test_vec=C[:size_test]
                     
-                    self.assertEqual(abs(test_vec-my_knn1.prediction).sum(),0,"a) Checking knn classification with flat criterion.")
-                    self.assertEqual(abs(test_vec-my_knn2.prediction).sum(),0,"b) Checking knn classification with weighted criterion.")
+                    npt.assert_array_equal(test_vec,my_knn1.prediction,err_msg="a) Checking knn classification with flat criterion.")
+                    npt.assert_array_equal(test_vec,my_knn2.prediction,err_msg="b) Checking knn classification with weighted criterion.")
         
         
          # TEST 2
@@ -90,8 +91,8 @@ class MyKnnClassifierTest(unittest.TestCase):
         
         for i in range(1,size_train//2+1):
                     
-            my_knn1 = MyKnnClassifier(method="Euclidean",criterion="flat",n_neighbors=i,parallelize=False)
-            my_knn2 = MyKnnClassifier(method="Euclidean",criterion="weighted",n_neighbors=i,parallelize=False)
+            my_knn1 = MyKnnClassifier(method="classic",criterion="flat",n_neighbors=i,parallelize=False)
+            my_knn2 = MyKnnClassifier(method="classic",criterion="weighted",n_neighbors=i,parallelize=False)
                     
             for i in n_input_feat:
                 for j in n_output_feat:
@@ -105,13 +106,13 @@ class MyKnnClassifierTest(unittest.TestCase):
                     test_vec=C[:size_test//2]
                     test_vec=np.concatenate((test_vec,test_vec-y_val),axis=0)
                         
-                    self.assertTrue(abs(test_vec-my_knn1.prediction).sum()<1e-12,"c) Checking knn classification with flat criterion, 1<k<n_train_samples//2.")
-                    self.assertTrue(abs(test_vec-my_knn2.prediction).sum()<1e-12,"d) Checking knn classification with weighted criterion, 1<k<n_train_samples//2.")
+                    npt.assert_array_equal(test_vec,my_knn1.prediction,err_msg="c) Checking knn classification with flat criterion, 1<k<n_train_samples//2.")
+                    npt.assert_array_equal(test_vec,my_knn2.prediction,err_msg="d) Checking knn classification with weighted criterion, 1<k<n_train_samples//2.")
         
         for i in range(size_train//2+2,size_train+1):
                     
-            my_knn1 = MyKnnClassifier(method="Euclidean",criterion="flat",n_neighbors=i,parallelize=False)
-            my_knn2 = MyKnnClassifier(method="Euclidean",criterion="weighted",n_neighbors=i,parallelize=False)
+            my_knn1 = MyKnnClassifier(method="classic",criterion="flat",n_neighbors=i,parallelize=False)
+            my_knn2 = MyKnnClassifier(method="classic",criterion="weighted",n_neighbors=i,parallelize=False)
                     
             for i in n_input_feat:
                 for j in n_output_feat:
@@ -158,40 +159,30 @@ class MyKnnClassifierTest(unittest.TestCase):
         
         print("\n testing predict method using grid knn classifier")
         
-        
-        sizes=[[5,5],[3,18],[10,10]]
-        n_output_feat=[1]
-        y_val=3        
-
-        size_train=[]
-        for i in sizes:
-            size_train.append(i[0]*i[1]*3//4)
-                
-        for a,j in zip(size_train,sizes):
-                
-            for i in range(1,5):
-                extensions=np.array(j)
-                my_knn1 = MyKnnClassifier(method="grid",criterion="flat",n_neighbors=i,grid_size=extensions,parallelize=False)
-                my_knn2 = MyKnnClassifier(method="grid",criterion="weighted",n_neighbors=i,grid_size=extensions,parallelize=False)
-   
-                for k in n_output_feat:
-                    A,C,B=gmd.generate_grid_arrays_single_pole(j[0],j[1],k,a,y_val)
-                    my_knn1.fit(A,B)
-                    my_knn1.predict(C)
-                        
-                    my_knn2.fit(A,B)
-                    my_knn2.predict(C)
-                    test_vec=C[:(j[0]*j[1]-a)]
-                    self.assertTrue(abs(test_vec-my_knn1.prediction).sum()<1e-12,"a) Checking knn grid classification with flat criterion.")
-                    self.assertTrue(abs(test_vec-my_knn2.prediction).sum()<1e-12,"b) Checking knn grid classification with weighted criterion.")
-        
-        sizes=[[5,5],[3,10],[7,10]]
+        sizes=[[3,2],[5,4],[10,3]]
         n_output_feat=[1]
         y_val=3        
         for i in sizes:
             extensions=np.array([i[0]*2,i[1]*2],dtype=int)
             
-            for j in [1,min(i)]:
+            for j in [1,int(min(extensions)//2*min(extensions)//2)]:
+                my_knn1 = MyKnnClassifier(method="grid",criterion="flat",n_neighbors=j,grid_size=extensions,parallelize=False)
+                my_knn2 = MyKnnClassifier(method="grid",criterion="weighted",n_neighbors=j,grid_size=extensions,parallelize=False)
+        
+                for k in n_output_feat:
+                    A,C,B=gmd.generate_grid_arrays_double_pole(i[0],i[1],k,y_val,binary=True)
+                    
+                    my_knn1.fit(A,B)
+                    my_knn1.predict(C)
+                    my_knn2.fit(A,B)
+                    my_knn2.predict(C) 
+                    npt.assert_array_almost_equal(abs(my_knn1.prediction[0]),abs(y_val),decimal=10,err_msg="c) Checking knn regression with flat criterion, first test point, 1<k<=min(Nx,Ny)//2.")
+                    npt.assert_array_almost_equal(abs(my_knn2.prediction[0]),abs(y_val),decimal=10,err_msg="d) Checking knn regression with weighted criterion, first test point, 1<k<=min(Nx,Ny)//2.")
+                    npt.assert_array_almost_equal(abs(my_knn1.prediction[1]),0,decimal=10,err_msg="e) Checking knn regression with flat criterion, second test point, 1<k<=min(Nx,Ny)//2.")
+                    npt.assert_array_almost_equal(abs(my_knn2.prediction[1]),0,decimal=10,err_msg="f) Checking knn regression with weighted criterion, second test point, 1<k<=min(Nx,Ny)//2.")
+           
+            for j in [int(extensions[0]*extensions[1]-5),int(extensions[0]*extensions[1]-1)]:
+                
                 my_knn1 = MyKnnClassifier(method="grid",criterion="flat",n_neighbors=j,grid_size=extensions,parallelize=False)
                 my_knn2 = MyKnnClassifier(method="grid",criterion="weighted",n_neighbors=j,grid_size=extensions,parallelize=False)
         
@@ -200,14 +191,13 @@ class MyKnnClassifierTest(unittest.TestCase):
             
                     my_knn1.fit(A,B)
                     my_knn1.predict(C)
-
                     my_knn2.fit(A,B)
                     my_knn2.predict(C)   
-                    test_vec=C[:1]
-                    test_vec=np.concatenate((test_vec,y_val-test_vec),axis=0)
-                    self.assertTrue(abs(test_vec-my_knn1.prediction).sum()<=1e-12,"c) Checking knn classification with flat criterion, 1<k<=min(Nx,Ny)//2.")
-                    self.assertTrue(abs(test_vec-my_knn2.prediction).sum()<=1e-12,"d) Checking knn classification with weighted criterion, 1<k<=min(Nx,Ny)//2.")
-
-        
+                    
+                    for k,l in enumerate(zip(my_knn1.prediction,my_knn2.prediction)):
+                        self.assertTrue((l[0] == y_val) or (l[0] == 0),"g) Checking knn regression with flat criterion, min(Nx,Ny)//2 < k <= Nx*Ny-2.")
+                        self.assertTrue((l[1] == y_val) or (l[1] == 0),"h) Checking knn regression with weighted criterion, M < k <= Nx*Ny-2.")
+    
+      
         #To be added: test for the classification with kdtree
         #test_myknnclassifier_predict_with_fit_kd_tree

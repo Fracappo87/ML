@@ -9,7 +9,7 @@ License: BSD 3 clause
 """
 
 import numpy as np
-from metrics.mynorms import Euclidean,L1
+from metrics.mynorms import Euclidean
 from checks.mycheck import sanitycheck
 
 class MyKnn(object):
@@ -28,7 +28,7 @@ class MyKnn(object):
     """
 
 
-    def __init__(self,method="Euclidean",n_neighbors=5,leafsize=100,grid_size=np.zeros(1),parallelize=False):
+    def __init__(self,method="classic",n_neighbors=5,leafsize=100,grid_size=np.zeros(1),parallelize=False):
 
         if not isinstance(method, str):
             raise ValueError("method has to be a string!.")
@@ -40,10 +40,10 @@ class MyKnn(object):
             raise ValueError("grid size has to be a bidimensional array!")
         elif not isinstance(parallelize, bool):
             raise ValueError("parallelize has to be a bool variable, True or False!.")
-        elif method!='Euclidean' and method != 'L1' and method != 'grid' and method != "kd-tree":
-            raise ValueError("method method can only be \" Euclidean\", \"L1\", \"grid\" or \"kd-tree\"!.")
+        elif method!="classic" and method != 'grid' and method != "kd-tree":
+            raise ValueError("knn method can only be \" classic\",  \"grid\" or \"kd-tree\"!.")
         
-        self.__dist=method
+        self.method=method
         self.__k=n_neighbors
         self.__paral=parallelize
         self.__leafsize = leafsize
@@ -528,7 +528,8 @@ class MyKnn(object):
         sanitycheck(X_train,np.ndarray)
         sanitycheck(X_test,np.ndarray)
         sanitycheck(extensions,np.ndarray)
-    
+        WARN=False
+        
         if ((len(X_train[0]) != 2) and (len(X_train[-1]) != 2) and (len(X_test[1]) != 2) and (len(X_test[-2]) != 2)):
             raise ValueError("Grid methods actually works only for 2-d isotropic lattices!")
         
@@ -547,7 +548,7 @@ class MyKnn(object):
             shell=1
             l=0
             
-            while neib > 0 and shell <4:
+            while neib > 0:
     
                 points,dist=self._shell_neighbor(shell,i)
                 
@@ -563,12 +564,13 @@ class MyKnn(object):
                         
                 shell+=1
             if shell==4:
-                print("WARNING: grid method becomes not exact: exceeding the 3rd shell results in approximate definition of neighbors!")
+                WARN=True
             self.neighbors_idx[m]=nk_temp
             self.neighbors_dist[m]=nk_dist_temp
             m+=1
-        
-    
+        if WARN:    
+            print("WARNING: grid method becomes not exact: exceeding the 3rd shell results in approximate definition of neighbors!")
+            
 
     def _fit_kdtree(self,X_train, X_test,leafsize):
         """         
@@ -619,15 +621,15 @@ class MyKnn(object):
             X=X_train
             Y=X_test
             
-        if self.__paral and (self.__dist == "Euclidean" or self.__dist == "L1" ):
-            return self.fit_parallel(X,Y)
-        elif (not self.__paral) and (self.__dist == "Euclidean" or self.__dist == "L1" ):
+        
+        if self.method == "classic":
             return self.fit_serial(X,Y)
-        elif self.__dist=="grid":
+        elif self.method=="grid":
             return self.fit_grid(X,Y,self.__grid_size)
-        elif self.__dist=="kd-tree":
+        elif self.method=="kd-tree":
             return self.fit_kdtree(X,Y,self.__leafsize)
-
+        elif self.__paral and self.method == "kd-tree":
+            return self.fit_parallel(X,Y)
 
      
     

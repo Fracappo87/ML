@@ -92,7 +92,7 @@ class MyKnnRegressor(MyKnn,MyRegressor):
                 self.prediction[i]=Y_train[j].mean(axis=0)
         elif self.__crit=="weighted":
             for i,j in enumerate(zip(self.neighbors_idx,self.neighbors_dist)):
-                self.prediction[i]=np.average(Y_train[j[0]],axis=0,weights=1/j[1])
+                self.prediction[i]=np.average(Y_train[j[0]],axis=0,weights=1./j[1])
             
             
             

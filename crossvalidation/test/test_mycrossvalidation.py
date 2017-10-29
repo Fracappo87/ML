@@ -88,7 +88,7 @@ class MyCrossValidationTest(unittest.TestCase):
         Rsquares=np.zeros((len(test_values),nfolds))
         
         for k in test_values:
-            my_knn_fold=MyKnnRegressor(method="Euclidean",criterion="weighted",n_neighbors=k)
+            my_knn_fold=MyKnnRegressor(method="classic",criterion="weighted",n_neighbors=k)
             mycv.cross_val(X_train,y_train,my_knn_fold)  
             Rsquares[k-1,:]=mycv.R_squared_collection
         
@@ -99,7 +99,7 @@ class MyCrossValidationTest(unittest.TestCase):
  
         # Applying the algorithm with optimal number of neighbors
 
-        my_knn=MyKnnRegressor(method="Euclidean",criterion="weighted",n_neighbors=optimal_k)
+        my_knn=MyKnnRegressor(method="classic",criterion="weighted",n_neighbors=optimal_k)
         my_knn.fit(X_train,X_test)
         my_knn.predict(y_train)
         

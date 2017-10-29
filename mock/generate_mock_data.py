@@ -30,8 +30,9 @@ def generate_spatially_gaussian_arrays_single_pole(n_input_features,n_output_fea
         
     return X_train, Y_train, X_test
 
-def generate_spatially_gaussian_arrays_double_pole(n_input_features,n_output_features,size_train,size_test,y_val,binary=False):
-    """   
+def generate_spatially_gaussian_arrays_double_pole(n_input_features,n_output_features,size_train,size_test,y_val,centre=100.,scale=.001,binary=False):
+    """ 
+    WARNING: UPDATE DOCUMENTATION ABOUT FINAL OUTPUT SIZES
     It generates data arrays describing training input/output and test input.
     Data are gathered around two opposite poles in feature space, and have the following values in output space:
     1) [y_val,y_val,...,y_val] for data gathered around the first pole
@@ -40,6 +41,7 @@ def generate_spatially_gaussian_arrays_double_pole(n_input_features,n_output_fea
     The bool flag binary is used when mock data for classification algorithms have to be generated: when set to True it 
     set output space dimension to 1 and class values to y_val and 0 
     
+    The position and spread of gaussian distributions can be set by assigning specific values (or array-values) to "centre" and "scale"    
     Test arrays
         
     X_train_1 = array-like, shape = [size_train,n_input_features]
@@ -47,19 +49,18 @@ def generate_spatially_gaussian_arrays_double_pole(n_input_features,n_output_fea
     X_test_1 = array-like, shape = [size_test,n_input_features]   
     """         
     
-    centre=100.
     sizo=size_test//2
-    pole_1 = np.random.normal(centre,scale=.001,size=(sizo,n_input_features))
-    pole_2 = np.random.normal(-centre,scale=.001,size=(sizo,n_input_features))
+    pole_1 = np.random.normal(centre,scale,size=(sizo,n_input_features))
+    pole_2 = np.random.normal(-centre,scale,size=(sizo,n_input_features))
     X_test=np.concatenate((pole_1,pole_2))
     
     sizo=size_train//2
-    pole_1 = np.random.normal(centre,scale=.001,size=(sizo,n_input_features))
-    pole_2 = np.random.normal(-centre,scale=.001,size=(sizo,n_input_features))
+    pole_1 = np.random.normal(centre,scale,size=(sizo,n_input_features))
+    pole_2 = np.random.normal(-centre,scale,size=(sizo,n_input_features))
     X_train=np.concatenate((pole_1,pole_2))
     
-    
-    y_pole_1=np.array([y_val]*sizo*(n_output_features*(not binary)+binary)).reshape(sizo,n_output_features)
+    n_output_features=n_output_features*(not binary)+binary
+    y_pole_1=np.array([y_val]*sizo*n_output_features).reshape(sizo,n_output_features)
     if binary: 
         y_pol_2=y_pole_1-y_val
     else:    
@@ -102,6 +103,7 @@ def generate_grid_arrays_single_pole(X_len,Y_len,n_output_features,size_train,y_
 
 def generate_grid_arrays_double_pole(X_len,Y_len,n_output_features,y_val,binary=False):
         """   
+        WARNING: UPDATE DOCUMENTATION ABOUT FINAL OUTPUT SIZES
         It generates data arrays describing training input/output and test input.
         Data are distributes onto a 2-D regular grind in feature space, and have the following values in output space:
         1) [y_val,y_val,...,y_val] for data belonging to the rectangle (0,0)-(Nx/2-1,Ny-1).
@@ -131,7 +133,8 @@ def generate_grid_arrays_double_pole(X_len,Y_len,n_output_features,y_val,binary=
         X_test=grid[idx]
         X_train=grid[[x for x in range(1,4*a*b-1)]]
         
-        y_pole_1=np.array([y_val]*(len(X_train)//2)*(n_output_features*(not binary)+binary)).reshape((len(X_train)//2),n_output_features)
+        n_output_features=n_output_features*(not binary)+binary
+        y_pole_1=np.array([y_val]*(len(X_train)//2)*n_output_features).reshape((len(X_train)//2),n_output_features)
         if binary: 
             y_pol_2=y_pole_1-y_val
         else:    
