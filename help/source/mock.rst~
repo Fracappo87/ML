@@ -1,4 +1,6 @@
 Mock module!
 ************
 
-..automodule::ML.mock
+.. automodule:: ML.mock
+.. automodule:: ML.mock.generate_mock_data
+.. automodule:: ML.mock.generate_mock_class

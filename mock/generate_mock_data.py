@@ -11,15 +11,23 @@ import numpy as np
 
 def generate_spatially_gaussian_arrays_single_pole(n_input_features,n_output_features,size_train,size_test,y_val):
     """   
-    It generates data arrays describing training input/output and test input.
-    Data are gathered around the origin in feature space, and have all the same values in output space.
-    This function is useful for doing simple tests of learning algorithms.    
+    Generates data arrays describing training input/output and test input data. 
+    Data are gathered around the origin in feature space, and have all the same values in output space. 
+   
+   This function is useful for doing simple tests of learning algorithms.    
     
-    Test arrays
-        
-    X_train_1 = array-like, shape = [size_train,n_input_features]
-    Y_train_1 = array-like, shape = [size_train,n_output_features]
-    X_test_1 = array-like, shape = [size_test,n_input_features]
+    **Input**:\n
+    * n_input_features: type = int, *dimension of the input space*.
+    * n_output_features: type = int, *dimension of the output space*.
+    * size_train: type = int, *number of training instances*.
+    * size_test: type = int, *number of test instances*.
+    * y_val: type = double, *constant value assigned to each component of the output training vector*.
+    
+    
+    **Output**:\n
+    * X_train: type = numpyndarray, shape = [size_train,n_input_features].
+    * Y_train: type = numpyndarray, shape = [size_train,n_output_features].
+    * X_test: type = numpyndarray, shape = [size_test,n_input_features].
     """         
          
          
@@ -32,21 +40,35 @@ def generate_spatially_gaussian_arrays_single_pole(n_input_features,n_output_fea
 
 def generate_spatially_gaussian_arrays_double_pole(n_input_features,n_output_features,size_train,size_test,y_val,centre=100.,scale=.001,binary=False):
     """ 
-    WARNING: UPDATE DOCUMENTATION ABOUT FINAL OUTPUT SIZES
-    It generates data arrays describing training input/output and test input.
-    Data are gathered around two opposite poles in feature space, and have the following values in output space:
-    1) [y_val,y_val,...,y_val] for data gathered around the first pole
-    2) -[y_val,y_val,...,y_val] for data gathered around the second pole
-    This function is useful for doing simple non trivial tests of learning algorithms.
-    The bool flag binary is used when mock data for classification algorithms have to be generated: when set to True it 
-    set output space dimension to 1 and class values to y_val and 0 
-    
-    The position and spread of gaussian distributions can be set by assigning specific values (or array-values) to "centre" and "scale"    
-    Test arrays
+    Generates data arrays describing training input/output and test input data. 
+    Data are gathered around two opposite poles in feature space:\n
+    1. A=[centre,centre,...,centre] for pole 1.
+    2. B=-[centre,centre,...,centre] for pole 2.
         
-    X_train_1 = array-like, shape = [size_train,n_input_features]
-    Y_train_1 = array-like, shape = [size_train,n_output_features]
-    X_test_1 = array-like, shape = [size_test,n_input_features]   
+    Training data have the following values in output space:\n
+    1. a=[y_val,y_val,...,y_val] for data gathered around the first pole
+    2. b=-[y_val,y_val,...,y_val] for data gathered around the second pole
+    
+    This function is useful for doing simple non trivial tests of learning algorithms.
+    
+    **Input**:\n
+    * n_input_features: type = int, *dimension of the input space*.
+    * n_output_features: type = int, *dimension of the output space*.
+    * size_train: type = int, *number of training instances*.
+    * size_test: type = int, *number of test instances*.
+    * y_val: type = double, *constant value assigned to each component of the output training vector*.
+    * centre: type = double, *value used to define the pole (i.e. the mean vector) for the two normal distributions, default=100*.
+    * scale: type = double, *value used to define the spread of the two normal distribution, default=0.01*.
+    * binary: type = bool, *boolean flag used for creating test arrays for classification algorithms*. When set to **True**, the function applies the following changes
+        * n_output_features=1
+        * a=[y_val,y_val,...,y_val] for data gathered around the first pole
+        * b=[0,0,...,0] for data gathered around the second pole
+
+    
+    **Output**:\n
+    * X_train: type = numpyndarray, shape = [size_train,n_input_features].
+    * Y_train: type = numpyndarray, shape = [size_train,n_output_features].
+    * X_test: type = numpyndarray, shape = [size_test,n_input_features].
     """         
     
     sizo=size_test//2
@@ -71,13 +93,23 @@ def generate_spatially_gaussian_arrays_double_pole(n_input_features,n_output_fea
 
 def generate_grid_arrays_single_pole(X_len,Y_len,n_output_features,size_train,y_val):
         """ 
-        It generates data arrays describing training input/output and test input.
-        Data are distributes onto a 2-D regular grind in feature space, and have all the same values in output space.
+        Generates data arrays describing training input/output and test input data. 
+        Data are randomly distributed onto a 2-D regular grind in feature space, and have all the same values in output space.
+        
         This function is useful for doing simple tests of learning algorithms.
  
-        X_train = array-like, shape = [size_train,2]
-        Y_train = array-like, shape = [size_train,n_output_features]
-        X_test = array-like, shape =  [size_test,2]
+        **Input**:\n
+        * X_len: type = int, *grid extension along x-axis*.
+        * Y_len: type = int, *grid exension along y-axis*.
+        * n_output_features: type = int, *dimension of the output space*.
+        * size_train: type = int, *number of training instances*.
+        * y_val: type = double, *constant value assigned to each component of the output training vector*.
+        
+    
+        **Output**:\n
+        * X_train: type = numpyndarray, shape = [size_train,2].
+        * Y_train: type = numpyndarray, shape = [size_train,n_output_features].
+        * X_test: type = numpyndarray, shape = [(X_len*Y_len-size_train),2].
         """
         
         a=X_len
@@ -103,21 +135,28 @@ def generate_grid_arrays_single_pole(X_len,Y_len,n_output_features,size_train,y_
 
 def generate_grid_arrays_double_pole(X_len,Y_len,n_output_features,y_val,binary=False):
         """   
-        WARNING: UPDATE DOCUMENTATION ABOUT FINAL OUTPUT SIZES
-        It generates data arrays describing training input/output and test input.
-        Data are distributes onto a 2-D regular grind in feature space, and have the following values in output space:
-        1) [y_val,y_val,...,y_val] for data belonging to the rectangle (0,0)-(Nx/2-1,Ny-1).
-        2) -[y_val,y_val,...,y_val] for data belonging to the rectangle (Nx/2-1,Ny-1)-(Nx-1,Ny-1).
-        X_test contains only two input points, given by (0,0) and (Nx-1,Ny-1)
-        This function is useful for doing simple non trivial tests of learning algorithms.
-        The bool flag binary is used when mock data for classification algorithms have to be generated: when set to True it 
-        set output space dimension to 1 and class values to y_val and 0         
+        Generates data arrays describing training input/output and test input data.
+        Data are distributes onto a 2-D regular grind in feature space, and have the following values in output space:\n
+        1. a=[y_val,y_val,...,y_val] for data belonging to the rectangle (0,0)-(Nx/2-1,Ny-1).
+        2. b=-[y_val,y_val,...,y_val] for data belonging to the rectangle (Nx/2-1,Ny-1)-(Nx-1,Ny-1).
         
-        Test arrays
-            
-        X_train = array-like, shape = [size_train,2]
-        Y_train = array-like, shape = [size_train,n_output_features]
-        X_test = array-like, shape =  [2,2]   
+        This function is useful for doing simple non trivial tests of learning algorithms.
+        
+        **Input**:\n
+        * X_len: type = int, *grid extension along x-axis*.
+        * Y_len: type = int, *grid exension along y-axis*.
+        * n_output_features: type = int, *dimension of the output space*.
+        * y_val: type = double, *constant value assigned to each component of the output training vector*.
+        * binary: type = bool, *boolean flag used for creating test arrays for classification algorithms*. When set to **True**, the function applies the following changes
+            * n_output_features=1
+            * a=[y_val,y_val,...,y_val] for data belonging to the rectangle (0,0)-(Nx/2-1,Ny-1).
+            * b=[0,0,...,0] for data belonging to the rectangle (Nx/2-1,Ny-1)-(Nx-1,Ny-1).
+
+    
+        **Output**:\n
+        * X_train: type = numpyndarray, shape = [size_train,2].
+        * Y_train: type = numpyndarray, shape = [size_train,n_output_features].
+        * X_test: type = numpyndarray([[0,0],[Nx-1,Ny-1]]).
         """           
         a=X_len
         b=Y_len
