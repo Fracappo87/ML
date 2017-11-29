@@ -57,8 +57,8 @@ class MyKnn(object):
         Private methods.
         Just for internal use.
     """        
-            
-    def _lexico(self,X,extensions):
+    @staticmethod
+    def _lexico(X,extensions):
         
         """
             Takes an array containing the d-dimensional coordiantes of n_samples points an return an array of the same length, with coordinates substituted by the corresponding lexicographic index.
@@ -84,8 +84,8 @@ class MyKnn(object):
         
         return X_lex.sum(axis=len(X.shape)-1)
              
-        
-    def _shell_neighbor(self,shell_grade,point):
+    @staticmethod    
+    def _shell_neighbor(shell_grade,point):
         
         """        
             WARNING, WORKS ONLY FOR 2D flat discrete manifolds (usually images)!!! 
@@ -158,8 +158,8 @@ class MyKnn(object):
 
         return res,dist
         
-        
-    def _my_kdtree(self, data,leafsize):
+    @staticmethod    
+    def _my_kdtree(data,leafsize):
         
         """
             Build a kd-tree for O(n log n) nearest neighbour search. It is employed when
@@ -257,8 +257,8 @@ class MyKnn(object):
 
         return tree
 
-
-    def _intersect(self,hrect,p):
+    @staticmethod
+    def _intersect(hrect,p):
         
         """
             Method for checking whether or not a given input instance belong to a specific hyper-rectangle.

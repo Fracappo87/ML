@@ -1,0 +1,5 @@
+MyKnn
+*****
+
+.. automodule:: ML.knn.myknn
+   :members:
