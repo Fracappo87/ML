@@ -14,8 +14,7 @@ Welcome to ML's documentation!
    intro.rst
    mock.rst
    knn.rst
-   crossvalidation.rst
-
+   myknn.rst
 
 Indices and tables
 ==================

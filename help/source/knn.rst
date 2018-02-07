@@ -3,8 +3,7 @@ K-Nearest-Neighbors
 
 .. toctree::
    :maxdepth: 1
-
-
-    myknn.rst
-    myknnregressor.rst
-    myknnclassifier.rst  
+   
+   myknn.rst
+   myknnregressor.rst
+   myknnclassifier.rst  

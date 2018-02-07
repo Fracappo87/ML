@@ -2,7 +2,7 @@ K-Nearest-Neighbors
 *******************
 
 .. toctree::
-   :maxdepth: 
+   :maxdepth: 1
 
 
     myknn.rst

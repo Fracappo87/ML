@@ -1,13 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-
-Author: Francesco Capponi <capponi.francesco87@gmail.com>
-        David Preti       <preti.david@gmail.com>
-
-License: BSD 3 clause
-
-"""
-
 import numpy as np
 from knn.myknn import MyKnn
 from learners.mylearners import MyRegressor
@@ -16,20 +6,19 @@ from checks.mycheck import sanitycheck
 class MyKnnRegressor(MyKnn,MyRegressor):
 
     """
-    Our KNN regressor. It allows regression studies the k-nearest-neighbors algorithms
-    of the class MyKnn
+    Implementarion of KNN regressor. It allows regression studies using the k-nearest-neighbors algorithms
+    provided by the class MyKnn
     
-    Private parameters
+    Parameters
     ----------
-    __crit: str. Criterion adopted for computing neighbors contributions
-    learning_type: str. Type of learning procedure (instance based)    
+    method: str. Metric adopted for measuring distances in input feature space.
+    criterion: str. 
     
     Attributes
     ---------- 
-    prediction: numpy arry, shape=[n_test_samples, n_output_features]. 
-    Predicted values for target variable
+    prediction: 
     
-    The class inherit the following attributes from its parent classes:
+    The class inherits the following attributes from its parent classes:
     """
 
 
@@ -45,27 +34,22 @@ class MyKnnRegressor(MyKnn,MyRegressor):
         self.learning_type='instance_based'
         
 ##############################################################################
-
-    """
-        Public methods.
-    """
     
     def predict(self, Y_train):
         """
-            Predict the value of new input distances using the fitted KNN regressor.
-            It has to be called after having used the "fit" method.
+        Predicts the value of new input distances using the fitted KNN regressor.
+        It has to be called after having used the "fit" method.
 
-            Parameters:
-            ----------
+        Parameters
+        ----------
 
-            Y_train : numpy-like, shape = [n_samples, n_output_features]
+        Y_train: numpy-like, shape = [n_samples, n_output_features]
 
-            The method compute takes information from the following attributes
-
-            neighbors_idx : numpy-like, shape = [n_test_samples, n_first_k_neighbors]
-            neighbors_dist :  numpy-like, shape = [n_test_samples, n_first_k_neighbors]
-            
-            and use them to predict the output values of the new instances.         
+        Returns
+        -------
+        
+        prediction: numpy ndarray, shape=[n_test_samples, n_output_features]. 
+        Predicted values for target variables
         """
 
         return self._predict(Y_train)

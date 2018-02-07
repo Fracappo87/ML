@@ -8,7 +8,9 @@ License: BSD 3 clause
 
 import unittest
 import numpy as np
-from ..myscores import R_squared,class_score
+from ..myscores import R_squared
+from ..myscores import class_score
+from ..myscores import cross_entropy
 
 class MyScores(unittest.TestCase):
     
@@ -16,6 +18,7 @@ class MyScores(unittest.TestCase):
         """
         Testing the correcteness of the R_squared function
         """
+        
         print("\n testing computation of determination coefficient")
     
         N=20
@@ -39,6 +42,7 @@ class MyScores(unittest.TestCase):
         """
         Testing the correcteness of the classification score
         """
+        
         print("\n testing computation of classification score")
         
         # TEST 1: checking computation of classification scores for different scenarios 
@@ -48,7 +52,7 @@ class MyScores(unittest.TestCase):
 
         self.assertEqual(class_score(A,A),1.,"a) Checking class_score for y_pred=y_test.")
         self.assertEqual(class_score(A,B),2./3.,"b) Checking class_score for y_pred!=y_test.")
-        self.assertEqual(class_score(A,C),1/3.,"c) Checking class_score for y_pred!=y_test.")
+        self.assertEqual(class_score(A,C),1./3.,"c) Checking class_score for y_pred!=y_test.")
         
         A=np.array([1,1,1])
         B=np.array([1,1,2])
@@ -64,6 +68,31 @@ class MyScores(unittest.TestCase):
         self.assertRaises(ValueError,R_squared,y_pred,y_test)        
 
             
+    def test_cross_entropy(self):
+        """
+        Testing the correctness of cross entropy score
+        """
+        
+        print("\n testing computation of cross entropy score") 
+        
+        y_pred = np.array([.1, .2, .9, .8, .7])
+        y_test = np.array([1, 0, 1, 1 ,0])
+        self.assertAlmostEqual(cross_entropy(y_pred, y_test), 0.81164, places=5, msg="a) Testing cross entropy score")        
+      
+        y_pred = np.array([.1, .2, .9, .8, .7])
+        y_test = np.array([1, 0, 1, 1 ,1])
+        self.assertAlmostEqual(cross_entropy(y_pred, y_test), 0.64218, places=5, msg="b) Testing cross entropy score")
+        
+        y_pred = np.array([.1, .2, .9, .8, .7])
+        y_test = np.array([1, 0, 0, 1 ,0])
+        self.assertAlmostEqual(cross_entropy(y_pred, y_test), 1.25109
+        , places=5, msg="c) Testing cross entropy score")
+        
+        y_pred = np.array([.1, .2, .9, .8, .7])
+        y_test = np.array([0, 0, 0, 1 ,0])
+        self.assertAlmostEqual(cross_entropy(y_pred, y_test), 0.81164, places=5, msg="d) Testing cross entropy score")
+
+
 if __name__ == '__main__':
     unittest.main()
             
