@@ -43,13 +43,7 @@ class MyKnnRegressor(MyKnn,MyRegressor):
         Parameters
         ----------
 
-        Y_train: numpy-like, shape = [n_samples, n_output_features]
-
-        Returns
-        -------
-        
-        prediction: numpy ndarray, shape=[n_test_samples, n_output_features]. 
-        Predicted values for target variables
+        Y_train: numpy.ndarray, shape = [n_samples, n_output_features]
         """
 
         return self._predict(Y_train)

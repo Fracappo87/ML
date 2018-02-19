@@ -79,8 +79,8 @@ class MyScores(unittest.TestCase):
         y_test = np.array([1, 0, 1, 1 ,0])
         self.assertAlmostEqual(cross_entropy(y_pred, y_test), 0.81164, places=5, msg="a) Testing cross entropy score")        
       
-        y_pred = np.array([.1, .2, .9, .8, .7])
-        y_test = np.array([1, 0, 1, 1 ,1])
+        y_pred = np.array([[.1, .2, .9, .8, .7]])
+        y_test = np.array([[1, 0, 1, 1 ,1]])
         self.assertAlmostEqual(cross_entropy(y_pred, y_test), 0.64218, places=5, msg="b) Testing cross entropy score")
         
         y_pred = np.array([.1, .2, .9, .8, .7])
@@ -88,8 +88,8 @@ class MyScores(unittest.TestCase):
         self.assertAlmostEqual(cross_entropy(y_pred, y_test), 1.25109
         , places=5, msg="c) Testing cross entropy score")
         
-        y_pred = np.array([.1, .2, .9, .8, .7])
-        y_test = np.array([0, 0, 0, 1 ,0])
+        y_pred = np.array([[.1, .2, .9, .8, .7]])
+        y_test = np.array([[0, 0, 0, 1 ,0]])
         self.assertAlmostEqual(cross_entropy(y_pred, y_test), 0.81164, places=5, msg="d) Testing cross entropy score")
 
 
